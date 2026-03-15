@@ -7,7 +7,7 @@ MCP server that connects **multiple Gmail accounts** and lets Claude search and 
 ## What It Does
 
 - Connects personal, work, kids, school Gmail accounts — as many as you need
-- Stores OAuth tokens securely in your **OS keychain** (Windows Credential Store / macOS Keychain / Linux libsecret)
+- Stores OAuth tokens securely in an **AES-256-GCM encrypted file** at `~/.multi-gmail-mcp/tokens.enc`
 - Exposes 5 MCP tools to Claude:
   - `gmail_list_accounts` — see all connected accounts
   - `gmail_search_all` — search ALL accounts simultaneously
@@ -40,7 +40,7 @@ MCP server that connects **multiple Gmail accounts** and lets Claude search and 
 ## Step 2 — Install & Build
 
 ```bash
-git clone <this-repo>
+git clone https://github.com/umesh9883/multi-gmail-mcp-server.git
 cd multi-gmail-mcp-server
 npm install
 npm run build
@@ -75,7 +75,7 @@ npm run setup add kids         # Opens browser → sign in with kids@gmail.com
 npm run setup add school       # Opens browser → sign in with school@gmail.com
 ```
 
-Each command opens a browser, asks you to sign in, and stores the refresh token in your OS keychain.
+Each command opens a browser, asks you to sign in, and stores the refresh token encrypted on disk.
 
 ```bash
 npm run setup list             # See all connected accounts
@@ -153,17 +153,11 @@ npm run setup remove problematic@gmail.com
 npm run setup add personal
 ```
 
-**Linux keychain issues**
-Install `libsecret`:
-```bash
-sudo apt-get install libsecret-1-dev
-```
-
 ---
 
 ## Security Notes
 
-- Tokens are stored in your **OS keychain**, not in any file
+- Tokens are stored in an **AES-256-GCM encrypted file** at `~/.multi-gmail-mcp/tokens.enc` (mode 600), encrypted with a key derived from your hostname and username
 - This server only requests **read-only** Gmail access (`gmail.readonly` scope)
 - It never modifies, sends, or deletes emails
 - The `GMAIL_CLIENT_SECRET` never leaves your machine
